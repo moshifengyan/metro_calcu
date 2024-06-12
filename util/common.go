@@ -1,7 +1,10 @@
-package main
+package util
 
 import (
+	"crypto/md5"
 	"fmt"
+	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -11,7 +14,8 @@ const AK = "vx8BaTvDoFdY2x1grejbHR1FOoznyTSP"
 const SK = "zKZ16sLgw6vKerUmDr31bUKHjhcAAM7O"
 
 var MetroLines = map[string][]string{
-	"shenzhen": {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "20"},
+	"深圳": {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "20"},
+	"广州": {"1", "2", "3", "4", "5", "6", "7", "8", "9", "13", "14", "18", "21", "22"},
 }
 
 type DetRet struct {
@@ -39,6 +43,10 @@ func (s *SliceSafer) Append(values ...DetRet) {
 	s.slice = append(s.slice, values...)
 }
 
+func (s *SliceSafer) GetSlice() []DetRet {
+	return s.slice
+}
+
 func FormatTime(dur int64) string {
 	duration := time.Duration(dur) * time.Second
 	hours := int(duration.Hours())
@@ -49,4 +57,20 @@ func FormatTime(dur int64) string {
 		return fmt.Sprintf("%d分%d秒", minutes, remainingSeconds)
 	}
 	return fmt.Sprintf("%d小时%d分%d秒", hours, minutes, remainingSeconds)
+}
+
+func CalculateSN(params [][]string, path, sk string) (string, string) {
+	paramsArr := make([]string, 0)
+	for _, v := range params {
+		kv := v[0] + "=" + (v[1])
+		paramsArr = append(paramsArr, kv)
+	}
+	paramsStr := strings.Join(paramsArr, "&")
+
+	// 计算sn
+	queryStr := url.QueryEscape(path + "?" + paramsStr)
+	str := queryStr + sk
+	key := md5.Sum([]byte(str))
+	sn := fmt.Sprintf("%x", key)
+	return paramsStr, sn
 }
