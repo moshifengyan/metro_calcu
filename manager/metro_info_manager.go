@@ -2,11 +2,11 @@ package manager
 
 import (
 	"fmt"
+	"metro_calcu/service/cache"
+	map_service "metro_calcu/service/map"
+	"metro_calcu/util"
 	"sort"
 	"sync"
-
-	map_service "metro_calcu/service"
-	"metro_calcu/util"
 
 	"github.com/samber/lo"
 )
@@ -52,6 +52,10 @@ func CalculateDest(region, startStation string, duration int64) []string {
 }
 
 func getAllStations(region string) []*map_service.StationsDetail {
+	cacheVal := cache.Get(util.CacheKey)
+	if cacheVal != nil {
+		return cacheVal.([]*map_service.StationsDetail)
+	}
 	allStations := make([]*map_service.StationsDetail, 0)
 	lineNums, ok := util.MetroLines[region]
 	if !ok {
@@ -78,5 +82,7 @@ func getAllStations(region string) []*map_service.StationsDetail {
 	allStationsMap := lo.SliceToMap(allStations, func(item *map_service.StationsDetail) (string, *map_service.StationsDetail) {
 		return item.UID, item
 	})
+	retAll := lo.Values(allStationsMap)
+	cache.Set(util.CacheKey, retAll)
 	return lo.Values(allStationsMap)
 }

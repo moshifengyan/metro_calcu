@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"metro_calcu/service/cache"
 	"net/http"
 	"net/url"
 	"sort"
@@ -63,6 +64,11 @@ type PlaceSearchResponse struct {
 	Status  int               `json:"status"`
 	Message string            `json:"message"`
 	Results []*StationsDetail `json:"results"`
+}
+
+type CacheSearchDest struct {
+	EndName  string
+	Duration int64
 }
 
 func GetStationsByPage(page int64, name, region string, isLine bool) ([]*StationsDetail, error) {
@@ -126,6 +132,12 @@ func GetStartLocation(region, name string) (float64, float64, string) {
 }
 
 func SearchDestStation(startLat, startLng, destLat, destLng float64, timeDur int64, startUID, destUID string) (string, int64) {
+	cacheKey := startUID + destUID
+	cacheVal := cache.Get(cacheKey)
+	if cacheVal != nil {
+		cv := cacheVal.(CacheSearchDest)
+		return cv.EndName, cv.Duration
+	}
 	path := "/directionlite/v1/transit"
 
 	// 设置请求参数
@@ -177,6 +189,7 @@ func SearchDestStation(startLat, startLng, destLat, destLng float64, timeDur int
 	curRouteSteps := selectedRoute.Steps
 	for i := len(curRouteSteps) - 1; i >= 0; i-- {
 		if strings.Contains(curRouteSteps[i][0].Vehicle.EndName, "站") {
+
 			return curRouteSteps[i][0].Vehicle.EndName, selectedRoute.Duration
 		}
 	}

@@ -12,6 +12,7 @@ import (
 const MapHost = "https://api.map.baidu.com"
 const AK = "vx8BaTvDoFdY2x1grejbHR1FOoznyTSP"
 const SK = "zKZ16sLgw6vKerUmDr31bUKHjhcAAM7O"
+const CacheKey = "all_station"
 
 var MetroLines = map[string][]string{
 	"深圳": {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "20"},

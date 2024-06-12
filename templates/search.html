@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Station Times</title>
+</head>
+<body>
+<h1>Station Times</h1>
+<table border="1">
+    <tr>
+        <th>Station</th>
+        <th>Time</th>
+    </tr>
+    {{ range .stations }}
+    <tr>
+        <td>{{ .Name }}</td>
+        <td>{{ .Time }}</td>
+    </tr>
+    {{ end }}
+</table>
+</body>
+</html>
